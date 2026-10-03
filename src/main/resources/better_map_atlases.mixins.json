@@ -1,0 +1,10 @@
+{
+  "required": true,
+  "minVersion": "0.8.5",
+  "package": "org.nivpisum.bettermapatlases.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "better_map_atlases.refmap.json",
+  "mixins": ["MapItemMixin", "MapSavedDataMixin", "SurveySavedDataMixin"],
+  "client": ["client.MapInstanceMixin"],
+  "injectors": { "defaultRequire": 1 }
+}

@@ -1,0 +1,23 @@
+{
+  "item.map_atlases.atlas.tooltip_maps": "地图数：%d",
+  "item.map_atlases.atlas.tooltip_empty": "空地图数：%d",
+  "item.map_atlases.atlas.tooltip_scale": "比例：1:%s",
+  "item.map_atlases.atlas.tooltip_slice": "切片：%s",
+  "item.map_atlases.atlas.tooltip_type": "类型：%s",
+  "item.map_atlases.atlas.supplementaries_antique": "仿古",
+  "item.map_atlases.atlas.tooltip_slice_default": "切片：地表",
+  "item.map_atlases.atlas.tooltip_locked": "已锁定",
+  "message.map_atlases.locked": "地图册已锁定",
+  "message.map_atlases.unlocked": "地图册已解锁",
+  "message.map_atlases.atlas.slice_default": "地表",
+  "tooltip.map_atlases.delete_marker": "删除标记",
+  "tooltip.map_atlases.focus_marker": "定位标记",
+  "message.map_atlases.pin": "放置图钉",
+  "message.map_atlases.pin.info": "按住 Shift 编辑图钉",
+  "message.map_atlases.shear": "移除地图",
+  "message.map_atlases.shear.info": "点击地图将其移除",
+  "message.map_atlases.marker_name": "标记名称",
+  "message.map_atlases.map_scale": "缩放：%s 倍",
+  "message.map_atlases.map_index": "编号：%s",
+  "message.map_atlases.slice_height": "Y：%s"
+}

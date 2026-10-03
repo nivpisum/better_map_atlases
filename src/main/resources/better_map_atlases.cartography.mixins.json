@@ -1,0 +1,25 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "org.nivpisum.bettermapatlases.cartography.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "better_map_atlases.refmap.json",
+  "plugin": "org.nivpisum.bettermapatlases.cartography.CartographyMixinPlugin",
+  "mixins": [
+    "MapDecorationsAccessor",
+    "AtlasTableFilledMapCostMixin",
+    "AtlasAddRecipeMixin",
+    "AtlasAddPinPacketMixin",
+    "AtlasRemoveMarkerPacketMixin",
+    "AtlasCutMapPacketMixin"
+  ],
+  "client": [
+    "client.AtlasActionScreenMixin",
+    "client.AtlasPinButtonMixin",
+    "client.AtlasPinPositionMixin",
+    "client.AtlasCustomMarkerDeleteMixin",
+    "client.AtlasBannerMarkerDeleteMixin",
+    "client.AtlasMarkerRefreshMixin"
+  ],
+  "injectors": { "defaultRequire": 1 }
+}

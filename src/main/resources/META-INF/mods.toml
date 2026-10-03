@@ -1,0 +1,52 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MPL-2.0 (code); GPL-3.0-only (logo); see NOTICE.md"
+
+[[mods]]
+modId="better_map_atlases"
+version="${version}"
+displayName="Better Map Atlases"
+authors="nivpisum"
+logoFile="logo.png"
+displayURL="https://mc.nivpisum.com/project/better_map_atlases/"
+issueTrackerURL="https://github.com/nivpisum/better_map_atlases/issues"
+description='''Keep the places you explore in one atlas—above ground and below.
+
+Adds observed cave maps, height browsing, texture-based colours, and a configurable full-screen atlas and minimap. Records stay with the book; unexplored terrain stays unknown. Requires Map Atlases and Moonlight on both client and server.
+
+将走过的地表与洞穴收进地图册。按高度浏览已探索的洞穴，使用更准确的地图颜色，并自由调整大地图与小地图。记录随书保存，不揭示未探索区域。'''
+
+[[dependencies.better_map_atlases]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.20.2)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.better_map_atlases]]
+modId="moonlight"
+mandatory=true
+versionRange="[1.20-2.16.35,)"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.better_map_atlases]]
+modId="map_atlases"
+mandatory=true
+versionRange="[1.20-6.0.20]"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.better_map_atlases]]
+modId="betternethermap"
+mandatory=false
+versionRange="*"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.better_map_atlases]]
+modId="forge"
+mandatory=true
+versionRange="[47.4.23,48)"
+ordering="NONE"
+side="BOTH"

@@ -1,0 +1,14 @@
+{
+  "size": [
+    900,
+    900
+  ],
+  "continuous_surface_map": true,
+  "book_pixels_preserved": true,
+  "coarse_water_land_layout_matches": true,
+  "protected_book_pixels": 285000,
+  "map_detail_pixels": 60000,
+  "cave_overlay_pixels": 70235,
+  "original_sha256": "7cee508a76f3b1c77972d7281909e5085235d30806c7397d56b11deb882db30a",
+  "logo_sha256": "3248376ed4a4d94404cddcdd37a551e75e044c2f6d74f8a4f5e8c554f68923e3"
+}

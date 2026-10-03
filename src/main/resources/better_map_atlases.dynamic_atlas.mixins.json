@@ -1,0 +1,33 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "org.nivpisum.bettermapatlases.dynamic.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "better_map_atlases.refmap.json",
+  "plugin": "org.nivpisum.bettermapatlases.dynamic.SurveyAtlasMixinPlugin",
+  "mixins": [
+    "AtlasDynamicMapTypeMixin",
+    "AtlasDynamicServerMixin",
+    "AtlasDynamicHolderMixin",
+    "AtlasDynamicCollectionMixin",
+    "AtlasCollectionLookupMixin",
+    "AtlasDynamicGuiSyncMixin",
+    "SurveyKindPacketMixin"
+  ],
+  "client": [
+    "client.AtlasHudZoomMixin",
+    "client.AtlasFunctionButtonMixin",
+    "client.AtlasOverviewLayoutMixin",
+    "client.AtlasDynamicClientMixin",
+    "client.AtlasDynamicLabelMixin",
+    "client.AtlasDimensionLabelMixin",
+    "client.AtlasVanillaMarkerLabelMixin",
+    "client.AtlasCustomMarkerLabelMixin",
+    "client.AtlasDynamicItemLabelMixin",
+    "client.AtlasDynamicCartographyLabelMixin",
+    "client.AtlasDynamicMapWidgetMixin",
+    "client.AtlasDynamicWaypointMixin",
+    "client.AtlasDynamicHistoryMixin"
+  ],
+  "injectors": { "defaultRequire": 1 }
+}

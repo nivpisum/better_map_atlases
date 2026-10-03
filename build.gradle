@@ -1,0 +1,180 @@
+plugins {
+    id 'java'
+    id 'net.minecraftforge.gradle' version '6.0.54'
+    id 'org.spongepowered.mixin' version '0.7.38'
+}
+
+group = 'org.nivpisum.bettermapatlases'
+version = '1.0.0'
+base { archivesName = 'better_map_atlases-1.20.1-forge' }
+java { toolchain.languageVersion = JavaLanguageVersion.of(17) }
+minecraft { mappings channel: 'official', version: '1.20.1' }
+mixin {
+    add sourceSets.main, 'better_map_atlases.refmap.json'
+    config 'better_map_atlases.mixins.json'
+    config 'better_map_atlases.nether_compat.mixins.json'
+    config 'better_map_atlases.dynamic_atlas.mixins.json'
+    config 'better_map_atlases.cartography.mixins.json'
+}
+repositories {
+    mavenCentral()
+    maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+    maven { url = 'https://api.modrinth.com/maven'; content { includeGroup 'maven.modrinth' } }
+}
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.4.23'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    compileOnly 'io.github.llamalad7:mixinextras-common:0.4.1'
+    annotationProcessor 'io.github.llamalad7:mixinextras-common:0.4.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    // Exact reviewed releases, available only while compiling optional compatibility code.
+    compileOnly fg.deobf('maven.modrinth:twkfQtEc:W0ZWjZib') { transitive = false } // Moonlight 1.20-2.16.35-forge
+    compileOnly fg.deobf('maven.modrinth:4hwXMFif:Zcz2vXIl') { transitive = false } // Map Atlases 1.20-6.0.20
+    compileOnly fg.deobf('maven.modrinth:fdtm99de:ZItltU1C') { transitive = false } // Better Nether Map 1.2-1.20.1
+}
+dependencyLocking { lockAllConfigurations() }
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8'; options.release = 17 }
+// Mixin AP writes side outputs outside classes/. Gradle incremental compilation
+// can discard those without reprocessing the unchanged mixin source files.
+tasks.named('compileJava', JavaCompile) {
+    options.incremental = false
+    outputs.files(
+        layout.buildDirectory.file('tmp/compileJava/compileJava-refmap.json'),
+        layout.buildDirectory.file('tmp/compileJava/compileJava-mappings.tsrg'))
+}
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
+tasks.named('processResources') {
+    inputs.property 'version', project.version
+    filesMatching('META-INF/mods.toml') { expand version: project.version }
+}
+tasks.named('jar') {
+    from('LICENSE')
+    from('NOTICE.md')
+    from('LICENSES') { into 'LICENSES' }
+    manifest { attributes 'MixinConfigs': 'better_map_atlases.mixins.json,better_map_atlases.nether_compat.mixins.json,better_map_atlases.dynamic_atlas.mixins.json,better_map_atlases.cartography.mixins.json' }
+    finalizedBy 'reobfJar'
+}
+tasks.named('test') { useJUnitPlatform() }
+
+tasks.register('verifyReleaseJar') {
+    dependsOn 'reobfJar'
+    doLast {
+        def archive = new java.util.zip.ZipFile(tasks.jar.archiveFile.get().asFile)
+        try {
+            def readJson = { String name ->
+                def entry = archive.getEntry(name)
+                if (entry == null) throw new GradleException("Release JAR is missing ${name}")
+                new groovy.json.JsonSlurper().parse(archive.getInputStream(entry))
+            }
+            def config = readJson('better_map_atlases.mixins.json')
+            if (config.refmap != 'better_map_atlases.refmap.json') throw new GradleException('Missing Mixin refmap reference')
+            def compat = readJson('better_map_atlases.nether_compat.mixins.json')
+            if (compat.plugin != 'org.nivpisum.bettermapatlases.compat.NetherCompatMixinPlugin' || compat.refmap != config.refmap)
+                throw new GradleException('Optional Nether integration is missing its gate or refmap')
+            if (!compat.mixins.containsAll(['AtlasCollectionMixin', 'AtlasGuiSyncMixin']))
+                throw new GradleException('Optional Atlas collection-index or GUI height-sync repair is not activated')
+            def dynamic = readJson('better_map_atlases.dynamic_atlas.mixins.json')
+            if (dynamic.plugin != 'org.nivpisum.bettermapatlases.dynamic.SurveyAtlasMixinPlugin' || dynamic.refmap != config.refmap)
+                throw new GradleException('Dynamic Atlas integration is missing its gate or refmap')
+            def cartographyConfig = readJson('better_map_atlases.cartography.mixins.json')
+            [config, compat, dynamic, cartographyConfig].each { mixinConfig ->
+                ((mixinConfig.mixins ?: []) + (mixinConfig.client ?: [])).each { mixinName ->
+                    def className = (mixinConfig.package + '.' + mixinName).replace('.', '/') + '.class'
+                    if (archive.getEntry(className) == null) throw new GradleException("Missing Mixin class: ${className}")
+                }
+            }
+            def manifest = new java.util.jar.Manifest(archive.getInputStream(archive.getEntry('META-INF/MANIFEST.MF')))
+            def mixinConfigs = manifest.mainAttributes.getValue('MixinConfigs')?.split(',')?.toList()?.toSet()
+            if (mixinConfigs != ['better_map_atlases.mixins.json', 'better_map_atlases.nether_compat.mixins.json', 'better_map_atlases.dynamic_atlas.mixins.json', 'better_map_atlases.cartography.mixins.json'].toSet())
+                throw new GradleException('Release manifest does not activate all Mixin configurations')
+            if (archive.entries().toList().any { entry ->
+                ['pepjebs/', 'net/mehvahdjukaar/', 'com/syric/', 'com/llamalad7/'].any { entry.name.startsWith(it) }
+            }) throw new GradleException('An optional dependency was accidentally bundled')
+            def refmap = readJson(config.refmap)
+            def expected = [
+                'org/nivpisum/bettermapatlases/dynamic/mixin/SurveyKindPacketMixin': [
+                    'getUpdatePacket': 'm_164796_'],
+                'org/nivpisum/bettermapatlases/dynamic/mixin/client/AtlasDynamicLabelMixin': [
+                    'renderWidget': 'm_87963_'],
+                'org/nivpisum/bettermapatlases/dynamic/mixin/client/AtlasDynamicItemLabelMixin': [
+                    'appendHoverText': 'm_7373_',
+                    'Lnet/minecraft/network/chat/Component;translatable(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;': 'm_237110_'],
+                'org/nivpisum/bettermapatlases/dynamic/mixin/client/AtlasDynamicCartographyLabelMixin': [
+                    'renderWidget': 'm_87963_',
+                    'Lnet/minecraft/network/chat/Component;translatable(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;': 'm_237110_'],
+                'org/nivpisum/bettermapatlases/dynamic/mixin/client/AtlasDynamicMapWidgetMixin': [
+                    'mouseClicked': 'm_6375_'],
+                'org/nivpisum/bettermapatlases/dynamic/mixin/client/AtlasDynamicHistoryMixin': [
+                    'init': 'm_7856_', 'tick': 'm_86600_'],
+                'org/nivpisum/bettermapatlases/mixin/SurveySavedDataMixin': [
+                    'load': 'm_164807_', 'save': 'm_7176_', 'locked': 'm_164775_', 'scaled': 'm_164787_'],
+                'org/nivpisum/bettermapatlases/mixin/MapItemMixin': [
+                    'update': 'm_42893_',
+                    'Lnet/minecraft/world/level/saveddata/maps/MapItemSavedData;updateColor(IIB)Z': 'm_164792_'],
+                'org/nivpisum/bettermapatlases/mixin/MapSavedDataMixin': [
+                    'load': 'm_164807_', 'save': 'm_7176_', 'locked': 'm_164775_',
+                    'setColor': 'm_164803_', 'getUpdatePacket': 'm_164796_'],
+                'org/nivpisum/bettermapatlases/mixin/client/MapInstanceMixin': [
+                    'draw': 'm_93291_', 'updateTexture': 'm_93290_',
+                    'Lnet/minecraft/client/renderer/texture/DynamicTexture;upload()V': 'm_117985_'],
+                'org/nivpisum/bettermapatlases/compat/mixin/BnmMapItemMixin': [
+                    'getSavedData(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/Level;)Lnet/minecraft/world/level/saveddata/maps/MapItemSavedData;': 'm_42853_'],
+                'org/nivpisum/bettermapatlases/compat/mixin/EmptyMapCreationMixin': [
+                    'use': 'm_7203_',
+                    'Lnet/minecraft/world/item/MapItem;create(Lnet/minecraft/world/level/Level;IIBZZ)Lnet/minecraft/world/item/ItemStack;': 'm_42886_'],
+                'org/nivpisum/bettermapatlases/compat/mixin/AlternateMapCreationMixin': [
+                    'Lnet/minecraft/world/item/MapItem;create(Lnet/minecraft/world/level/Level;IIBZZ)Lnet/minecraft/world/item/ItemStack;': 'm_42886_'],
+                'org/nivpisum/bettermapatlases/compat/mixin/AtlasCartographyMixin': [
+                    'slotsChanged': 'm_6199_'],
+                'org/nivpisum/bettermapatlases/compat/mixin/AtlasAccessMixin': [
+                    'Lnet/minecraft/world/level/saveddata/maps/MapItemSavedData;getUpdatePacket(ILnet/minecraft/world/entity/player/Player;)Lnet/minecraft/network/protocol/Packet;': 'm_164796_']
+            ]
+            expected.each { mixinClass, methods ->
+                methods.each { name, srg ->
+                    if (!refmap.mappings[mixinClass]?.get(name)?.contains(srg))
+                        throw new GradleException("Missing release mapping: ${mixinClass}.${name}")
+                }
+            }
+            def classEntry = archive.getEntry('org/nivpisum/bettermapatlases/mixin/client/MapInstanceMixin.class')
+            def constantPool = new String(archive.getInputStream(classEntry).bytes, java.nio.charset.StandardCharsets.ISO_8859_1)
+            ['f_93280_', 'f_182565_'].each { field ->
+                if (!constantPool.contains(field)) throw new GradleException("Unmapped release @Shadow field: ${field}")
+            }
+            def cartography = archive.getEntry('org/nivpisum/bettermapatlases/compat/mixin/AtlasCartographyMixin.class')
+            def cartographyPool = new String(archive.getInputStream(cartography).bytes, java.nio.charset.StandardCharsets.ISO_8859_1)
+            if (!cartographyPool.contains('f_39136_')) throw new GradleException('Unmapped cartography access field')
+            [
+                'AtlasGuiSyncMixin': ['syncAndOpenGui', 'requestHeightSync'],
+                'AtlasAccessMixin': ['syncMapDataToClient', 'includeHeightInPacket']
+            ].each { mixinName, names ->
+                def entry = archive.getEntry("org/nivpisum/bettermapatlases/compat/mixin/${mixinName}.class")
+                def pool = new String(archive.getInputStream(entry).bytes, java.nio.charset.StandardCharsets.ISO_8859_1)
+                names.each { name ->
+                    if (!pool.contains(name)) throw new GradleException("Missing height-sync hook: ${mixinName}.${name}")
+                }
+            }
+            [
+                'AtlasDynamicMapTypeMixin': ['getHeight', 'createNewMapItem', 'createExistingMapItem', 'getDiscoveryReach', 'markDynamic'],
+                'AtlasDynamicServerMixin': ['onPlayerTick', 'getSelectedSlice', 'maybeCreateNewMapEntry', 'canCreateDynamic'],
+                'AtlasDynamicHolderMixin': ['updateMap', 'updateMarkers', 'org/nivpisum/bettermapatlases/dynamic/SurveyRecorder', 'f_77960_'],
+                'AtlasDynamicGuiSyncMixin': ['syncAndOpenGui', 'requestKindSync'],
+                'SurveyKindPacketMixin': ['synchronizeKind', 'includeKindInPacket'],
+                'client/AtlasDynamicClientMixin': ['maybeChangeSlice', 'getClosestSlice', 'isFinite'],
+                'client/AtlasDynamicHistoryMixin': ['showHistory', 'followPlayer', 'clampBlockY', 'm_7861_']
+            ].each { mixinName, names ->
+                def entry = archive.getEntry("org/nivpisum/bettermapatlases/dynamic/mixin/${mixinName}.class")
+                if (entry == null) throw new GradleException("Missing dynamic Atlas hook: ${mixinName}")
+                def pool = new String(archive.getInputStream(entry).bytes, java.nio.charset.StandardCharsets.ISO_8859_1)
+                names.each { name ->
+                    if (!pool.contains(name)) throw new GradleException("Missing dynamic Atlas hook: ${mixinName}.${name}")
+                }
+            }
+            if (readJson('pack.mcmeta').pack.pack_format != 15)
+                throw new GradleException('Incorrect resource pack format')
+        } finally { archive.close() }
+    }
+}
+tasks.named('build') { dependsOn 'verifyReleaseJar' }
