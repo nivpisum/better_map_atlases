@@ -1,10 +1,9 @@
-/* SPDX-License-Identifier: MPL-2.0 */
+/* SPDX-License-Identifier: CC0-1.0 */
 package org.nivpisum.bettermapatlases;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.function.BiFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -21,18 +20,12 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 
 public final class MapSampler {
-    private static BiFunction<Level, MapItemSavedData, Integer> heightProvider = (level, map) -> null;
     private MapSampler() {}
-
-    /** Installed only when the optional cave-map integration and its dependencies are present. */
-    public static void setHeightProvider(BiFunction<Level, MapItemSavedData, Integer> provider) {
-        heightProvider = java.util.Objects.requireNonNull(provider);
-    }
 
     /** Invoked only for the pixels the vanilla update has actually visited. */
     public static void capture(Level level, MapItemSavedData map, int pixelX, int pixelZ, byte color) {
         if (!(level instanceof ServerLevel server) || map.locked
-            || level.dimensionType().hasCeiling() && heightProvider.apply(level, map) == null) return;
+            || level.dimensionType().hasCeiling()) return;
         int index = pixelX + pixelZ * 128;
         if (!server.getServer().isSameThread()) {
             DeferredMapSamples.request(server, map, index, color);
@@ -62,8 +55,7 @@ public final class MapSampler {
     /** False retains a partial pixel; true finishes or safely rejects the entire sample. */
     static boolean captureStep(ServerLevel level, MapItemSavedData map, PixelCapture pixel, long deadline) {
         if (!level.getServer().isSameThread()) throw new IllegalStateException("Map sampling must run on the server thread");
-        Integer fixedHeight = heightProvider.apply(level, map);
-        if (map.locked || level.dimensionType().hasCeiling() && fixedHeight == null) return true;
+        if (map.locked || level.dimensionType().hasCeiling()) return true;
         int scale = 1 << map.scale;
         int startX = (map.centerX / scale + pixel.x - 64) * scale;
         int startZ = (map.centerZ / scale + pixel.z - 64) * scale;
@@ -77,8 +69,7 @@ public final class MapSampler {
                 LevelChunk chunk = world.chunk(x, z);
                 if (chunk == null || chunk.isEmpty()) return true;
                 if (pixel.y == Integer.MAX_VALUE)
-                    pixel.y = fixedHeight == null ? chunk.getHeight(Heightmap.Types.WORLD_SURFACE, x, z)
-                        : Math.max(level.getMinBuildHeight(), Math.min(fixedHeight, level.getMaxBuildHeight() - 1));
+                    pixel.y = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, x, z);
                 BlockState state = Blocks.BEDROCK.defaultBlockState();
                 if (pixel.y > level.getMinBuildHeight()) {
                     while (true) {

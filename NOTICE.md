@@ -1,7 +1,10 @@
 # Attribution and third-party software
 
 Better Map Atlases is an independent Forge add-on by nivpisum. Its source is
-licensed under the Mozilla Public License 2.0; see `LICENSE`. The ideas behind
+dedicated to the public domain under CC0-1.0; see `LICENSE`. Original code and
+documentation may be used, modified, redistributed and used commercially
+without attribution to nivpisum. This dedication does not change third-party
+rights in the assets listed below. The ideas behind
 its texture-based map colours were inspired by [Accurate Maps by lucaargolo](https://github.com/lucaargolo/accurate-maps/tree/8fb8de5dfa7fc23e9ab5c4abd6ec7422a3942731)
 and [Color Accurate Maps by Syconn](https://github.com/Syconn/Color-Accurate-Maps/tree/1b1eaea3e0536d89c6d2296bebbe28680c7a3f07).
 This is not an official release by either author. Their code, binaries, and
@@ -15,11 +18,9 @@ is documented separately below:
   by pepjebs and MehVahdJukaar, required for atlas features. The reviewed
   source snapshot carries the GNU GPL version 3 license.
 - [Moonlight Lib](https://github.com/MehVahdJukaar/Moonlight/tree/1.20)
-  by MehVahdJukaar, required by Map Atlases. See its
+  by MehVahdJukaar, used by the verified Map Atlases build. Dependencies of other
+  Map Atlases releases follow those releases' own requirements. See its
   [upstream license](https://github.com/MehVahdJukaar/Moonlight/blob/1.20/license.md).
-- [Better Nether Map](https://github.com/Syrikal/Nether-Map-Port/tree/bf6c3c4c7135eb6a49e3b7be5e736d06663d64a0)
-  by Jummit and Syrikal, optional for existing fixed Nether maps. It is
-  MIT-licensed.
 
 Forge, Mixin, Minecraft, and build dependencies are obtained separately.
 
@@ -63,7 +64,7 @@ and [client JAR](https://launcher.mojang.com/v1/objects/89eab2c1a353707cc00f074d
   canvases render 12 pixels wide at the same common horizontal bounds.
 
 These textures are copyright Mojang Studios / Microsoft and are not licensed
-under this add-on's MPL-2.0 licence. They retain their original names, pixels,
+under this add-on's CC0 dedication. They retain their original names, pixels,
 source attribution and rights; their use is subject to the Minecraft EULA and
 Usage Guidelines. Better Map Atlases is not an official Minecraft product and
 is not approved by or associated with Mojang or Microsoft.
@@ -73,6 +74,6 @@ is not approved by or associated with Mojang or Microsoft.
 `logo.png` is derived from the Map Atlases project icon in the source snapshot
 linked above. Original project: pepjebs and MehVahdJukaar. Modifications and
 direction: nivpisum, with generative-AI assistance. The modified logo is licensed
-under **GPL-3.0-only**, separately from the MPL-2.0 Java source. The full logo
+under **GPL-3.0-only**, separately from the CC0 Java source and documentation. The full logo
 licence is included in `LICENSES/GPL-3.0-only.txt`; the original icon and
 modification notes are available with the source under `branding/`.

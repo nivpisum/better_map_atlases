@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: CC0-1.0
 """Composite one continuous fine map while preserving the original book pixels.
 
 Requires Pillow. surface_map.png and cave_map.png contain AI-assisted artwork.

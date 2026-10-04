@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: MPL-2.0 */
+/* SPDX-License-Identifier: CC0-1.0 */
 package org.nivpisum.bettermapatlases.cartography;
 
 import net.minecraftforge.fml.loading.FMLLoader;
@@ -14,7 +14,7 @@ public final class CartographyMixinPlugin implements IMixinConfigPlugin {
     @Override public void onLoad(String mixinPackage) {
         var loading = FMLLoader.getLoadingModList();
         if (loading != null) enabled = loading.getMods().stream().map(m -> m.getModId())
-                .collect(Collectors.toSet()).containsAll(Set.of("map_atlases", "moonlight"));
+                .collect(Collectors.toSet()).contains("map_atlases");
     }
     @Override public boolean shouldApplyMixin(String target, String mixin) { return enabled; }
     @Override public String getRefMapperConfig() { return null; }

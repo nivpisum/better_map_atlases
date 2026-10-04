@@ -5,14 +5,13 @@ plugins {
 }
 
 group = 'org.nivpisum.bettermapatlases'
-version = '1.0.0'
+version = '1.0.1'
 base { archivesName = 'better_map_atlases-1.20.1-forge' }
 java { toolchain.languageVersion = JavaLanguageVersion.of(17) }
 minecraft { mappings channel: 'official', version: '1.20.1' }
 mixin {
     add sourceSets.main, 'better_map_atlases.refmap.json'
     config 'better_map_atlases.mixins.json'
-    config 'better_map_atlases.nether_compat.mixins.json'
     config 'better_map_atlases.dynamic_atlas.mixins.json'
     config 'better_map_atlases.cartography.mixins.json'
 }
@@ -27,10 +26,9 @@ dependencies {
     compileOnly 'io.github.llamalad7:mixinextras-common:0.4.1'
     annotationProcessor 'io.github.llamalad7:mixinextras-common:0.4.1'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
-    // Exact reviewed releases, available only while compiling optional compatibility code.
+    // Reproducible compile/test baseline; these are not installation version restrictions.
     compileOnly fg.deobf('maven.modrinth:twkfQtEc:W0ZWjZib') { transitive = false } // Moonlight 1.20-2.16.35-forge
     compileOnly fg.deobf('maven.modrinth:4hwXMFif:Zcz2vXIl') { transitive = false } // Map Atlases 1.20-6.0.20
-    compileOnly fg.deobf('maven.modrinth:fdtm99de:ZItltU1C') { transitive = false } // Better Nether Map 1.2-1.20.1
 }
 dependencyLocking { lockAllConfigurations() }
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8'; options.release = 17 }
@@ -54,7 +52,7 @@ tasks.named('jar') {
     from('LICENSE')
     from('NOTICE.md')
     from('LICENSES') { into 'LICENSES' }
-    manifest { attributes 'MixinConfigs': 'better_map_atlases.mixins.json,better_map_atlases.nether_compat.mixins.json,better_map_atlases.dynamic_atlas.mixins.json,better_map_atlases.cartography.mixins.json' }
+    manifest { attributes 'MixinConfigs': 'better_map_atlases.mixins.json,better_map_atlases.dynamic_atlas.mixins.json,better_map_atlases.cartography.mixins.json' }
     finalizedBy 'reobfJar'
 }
 tasks.named('test') { useJUnitPlatform() }
@@ -71,16 +69,11 @@ tasks.register('verifyReleaseJar') {
             }
             def config = readJson('better_map_atlases.mixins.json')
             if (config.refmap != 'better_map_atlases.refmap.json') throw new GradleException('Missing Mixin refmap reference')
-            def compat = readJson('better_map_atlases.nether_compat.mixins.json')
-            if (compat.plugin != 'org.nivpisum.bettermapatlases.compat.NetherCompatMixinPlugin' || compat.refmap != config.refmap)
-                throw new GradleException('Optional Nether integration is missing its gate or refmap')
-            if (!compat.mixins.containsAll(['AtlasCollectionMixin', 'AtlasGuiSyncMixin']))
-                throw new GradleException('Optional Atlas collection-index or GUI height-sync repair is not activated')
             def dynamic = readJson('better_map_atlases.dynamic_atlas.mixins.json')
             if (dynamic.plugin != 'org.nivpisum.bettermapatlases.dynamic.SurveyAtlasMixinPlugin' || dynamic.refmap != config.refmap)
                 throw new GradleException('Dynamic Atlas integration is missing its gate or refmap')
             def cartographyConfig = readJson('better_map_atlases.cartography.mixins.json')
-            [config, compat, dynamic, cartographyConfig].each { mixinConfig ->
+            [config, dynamic, cartographyConfig].each { mixinConfig ->
                 ((mixinConfig.mixins ?: []) + (mixinConfig.client ?: [])).each { mixinName ->
                     def className = (mixinConfig.package + '.' + mixinName).replace('.', '/') + '.class'
                     if (archive.getEntry(className) == null) throw new GradleException("Missing Mixin class: ${className}")
@@ -88,10 +81,10 @@ tasks.register('verifyReleaseJar') {
             }
             def manifest = new java.util.jar.Manifest(archive.getInputStream(archive.getEntry('META-INF/MANIFEST.MF')))
             def mixinConfigs = manifest.mainAttributes.getValue('MixinConfigs')?.split(',')?.toList()?.toSet()
-            if (mixinConfigs != ['better_map_atlases.mixins.json', 'better_map_atlases.nether_compat.mixins.json', 'better_map_atlases.dynamic_atlas.mixins.json', 'better_map_atlases.cartography.mixins.json'].toSet())
+            if (mixinConfigs != ['better_map_atlases.mixins.json', 'better_map_atlases.dynamic_atlas.mixins.json', 'better_map_atlases.cartography.mixins.json'].toSet())
                 throw new GradleException('Release manifest does not activate all Mixin configurations')
             if (archive.entries().toList().any { entry ->
-                ['pepjebs/', 'net/mehvahdjukaar/', 'com/syric/', 'com/llamalad7/'].any { entry.name.startsWith(it) }
+                ['pepjebs/', 'net/mehvahdjukaar/', 'com/llamalad7/'].any { entry.name.startsWith(it) }
             }) throw new GradleException('An optional dependency was accidentally bundled')
             def refmap = readJson(config.refmap)
             def expected = [
@@ -119,18 +112,7 @@ tasks.register('verifyReleaseJar') {
                     'setColor': 'm_164803_', 'getUpdatePacket': 'm_164796_'],
                 'org/nivpisum/bettermapatlases/mixin/client/MapInstanceMixin': [
                     'draw': 'm_93291_', 'updateTexture': 'm_93290_',
-                    'Lnet/minecraft/client/renderer/texture/DynamicTexture;upload()V': 'm_117985_'],
-                'org/nivpisum/bettermapatlases/compat/mixin/BnmMapItemMixin': [
-                    'getSavedData(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/Level;)Lnet/minecraft/world/level/saveddata/maps/MapItemSavedData;': 'm_42853_'],
-                'org/nivpisum/bettermapatlases/compat/mixin/EmptyMapCreationMixin': [
-                    'use': 'm_7203_',
-                    'Lnet/minecraft/world/item/MapItem;create(Lnet/minecraft/world/level/Level;IIBZZ)Lnet/minecraft/world/item/ItemStack;': 'm_42886_'],
-                'org/nivpisum/bettermapatlases/compat/mixin/AlternateMapCreationMixin': [
-                    'Lnet/minecraft/world/item/MapItem;create(Lnet/minecraft/world/level/Level;IIBZZ)Lnet/minecraft/world/item/ItemStack;': 'm_42886_'],
-                'org/nivpisum/bettermapatlases/compat/mixin/AtlasCartographyMixin': [
-                    'slotsChanged': 'm_6199_'],
-                'org/nivpisum/bettermapatlases/compat/mixin/AtlasAccessMixin': [
-                    'Lnet/minecraft/world/level/saveddata/maps/MapItemSavedData;getUpdatePacket(ILnet/minecraft/world/entity/player/Player;)Lnet/minecraft/network/protocol/Packet;': 'm_164796_']
+                    'Lnet/minecraft/client/renderer/texture/DynamicTexture;upload()V': 'm_117985_']
             ]
             expected.each { mixinClass, methods ->
                 methods.each { name, srg ->
@@ -142,19 +124,6 @@ tasks.register('verifyReleaseJar') {
             def constantPool = new String(archive.getInputStream(classEntry).bytes, java.nio.charset.StandardCharsets.ISO_8859_1)
             ['f_93280_', 'f_182565_'].each { field ->
                 if (!constantPool.contains(field)) throw new GradleException("Unmapped release @Shadow field: ${field}")
-            }
-            def cartography = archive.getEntry('org/nivpisum/bettermapatlases/compat/mixin/AtlasCartographyMixin.class')
-            def cartographyPool = new String(archive.getInputStream(cartography).bytes, java.nio.charset.StandardCharsets.ISO_8859_1)
-            if (!cartographyPool.contains('f_39136_')) throw new GradleException('Unmapped cartography access field')
-            [
-                'AtlasGuiSyncMixin': ['syncAndOpenGui', 'requestHeightSync'],
-                'AtlasAccessMixin': ['syncMapDataToClient', 'includeHeightInPacket']
-            ].each { mixinName, names ->
-                def entry = archive.getEntry("org/nivpisum/bettermapatlases/compat/mixin/${mixinName}.class")
-                def pool = new String(archive.getInputStream(entry).bytes, java.nio.charset.StandardCharsets.ISO_8859_1)
-                names.each { name ->
-                    if (!pool.contains(name)) throw new GradleException("Missing height-sync hook: ${mixinName}.${name}")
-                }
             }
             [
                 'AtlasDynamicMapTypeMixin': ['getHeight', 'createNewMapItem', 'createExistingMapItem', 'getDiscoveryReach', 'markDynamic'],

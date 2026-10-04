@@ -1,7 +1,6 @@
-/* SPDX-License-Identifier: MPL-2.0 */
+/* SPDX-License-Identifier: CC0-1.0 */
 package org.nivpisum.bettermapatlases.dynamic;
 
-import org.nivpisum.bettermapatlases.compat.NetherMapCompat;
 import net.mehvahdjukaar.moonlight.api.map.ExpandedMapData;
 import net.mehvahdjukaar.moonlight.core.misc.IMapDataPacketExtension;
 import net.minecraft.nbt.CompoundTag;
@@ -15,7 +14,6 @@ import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.server.level.ServerPlayer;
 import pepjebs.mapatlases.MapAtlasesMod;
 import pepjebs.mapatlases.item.MapAtlasItem;
-import net.minecraftforge.fml.ModList;
 import pepjebs.mapatlases.utils.MapType;
 import pepjebs.mapatlases.utils.Slice;
 import java.util.ArrayList;
@@ -45,7 +43,7 @@ public final class SurveyAtlasChecks {
         ItemStack extracted = MapType.VANILLA.createExistingMapItem(123, SurveyAtlas.AUTO_HEIGHT);
         require(extracted.is(Items.FILLED_MAP) && extracted.getTag().getInt("map") == 123
                 && !extracted.getTag().contains("yLevel") && !extracted.getTag().contains("forceCave"), "ordinary ID-preserving extraction");
-        passed.add("Auto classification, selection persistence, bounded reach and extracted ID without BNM coordinates");
+        passed.add("Auto classification, selection persistence, bounded reach and ordinary extracted ID");
 
         ClientboundMapItemDataPacket packet = new ClientboundMapItemDataPacket(123, map.scale, false, null, null);
         CompoundTag unrelated = new CompoundTag();
@@ -80,20 +78,6 @@ public final class SurveyAtlasChecks {
         require(!SurveyAtlas.isDynamic(surface.locked()) && SurveyAtlas.isManaged(surface.locked()), "locked surface remains surface");
         passed.add("independent surface identity, no cave history, pixel save/load and lock");
 
-        if (ModList.get().isLoaded("betternethermap")) {
-            MapItemSavedData fixed = fresh();
-            NetherMapCompat.HeightData height = new NetherMapCompat.HeightData();
-            CompoundTag value = new CompoundTag();
-            value.putInt("format", 1); value.putInt("height", 70); value.putBoolean("ceiling_dimension", true);
-            CompoundTag tag = new CompoundTag(); tag.put("accurate_maps:nether_height", value);
-            height.load(tag);
-            ((ExpandedMapData) fixed).getCustomData().put(new ResourceLocation("accurate_maps", "nether_height"), height);
-            require(MapType.VANILLA.getHeight(fixed) == 70 && !SurveyAtlas.isDynamic(fixed), "fixed BNM identity unchanged");
-            ItemStack oldExtracted = MapType.VANILLA.createExistingMapItem(124, 70);
-            require(oldExtracted.getTag().getInt("yLevel") == 70, "fixed BNM extraction unchanged");
-            require(NetherMapCompat.getHeight(map) == null, "Auto never enters fixed BNM sampling");
-            passed.add("legacy fixed page and extraction unchanged; Auto excluded from BNM height");
-        }
         return Map.of("passed", true, "checks", passed, "autoHeight", SurveyAtlas.AUTO_HEIGHT);
     }
 

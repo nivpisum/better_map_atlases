@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: MPL-2.0 */
+/* SPDX-License-Identifier: CC0-1.0 */
 package org.nivpisum.bettermapatlases.cartography.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;

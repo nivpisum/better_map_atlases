@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: MPL-2.0 */
+/* SPDX-License-Identifier: CC0-1.0 */
 package org.nivpisum.bettermapatlases.dynamic.mixin;
 
 import java.util.ArrayList;
@@ -113,7 +113,7 @@ public abstract class AtlasCollectionLookupMixin implements AtlasCollectionLooku
 
     @Inject(method = "addNotSynced", at = @At("RETURN"))
     private void betterMapAtlases$refreshed(Level level, CallbackInfo callback) {
-        // The existing kind/BNM hooks may clear the map and fail to re-add every
+        // Kind changes may clear the map and fail to re-add every
         // pending payload. Successful re-adds already invalidate via add RETURN.
         if (betterMapAtlases$knownMapCount != maps.size()) betterMapAtlases$changed();
     }

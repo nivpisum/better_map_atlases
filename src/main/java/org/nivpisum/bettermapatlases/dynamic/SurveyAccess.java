@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: MPL-2.0 */
+/* SPDX-License-Identifier: CC0-1.0 */
 package org.nivpisum.bettermapatlases.dynamic;
 
 /** Presence of a survey identifies a dynamic map; surface pixels remain in the ordinary map layer. */

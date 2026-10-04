@@ -19,20 +19,22 @@ Underground maps grow as you explore: nearby floors you can actually see become 
 - **Dimension navigation:** Overworld/Nether browsing uses their 8:1 coordinate relationship. Other dimensions use explicitly configured links, or open at the origin when unlinked. Returning to your current dimension resumes following your position.
 - **English and Simplified Chinese controls.**
 
-## Install 1.0.0
+## Install 1.0.1
 
-The release targets **Minecraft 1.20.1**, **Forge 47.4.23**, and **Java 17**. Install Better Map Atlases on **both the client and server**, with these separately installed dependencies:
+Install Better Map Atlases on **both client and server** with **Forge and Map
+Atlases**. The add-on does not impose version bounds or a separate Moonlight
+requirement. Follow your chosen Map Atlases release's own library requirements.
 
-| Required mod | Version |
-| --- | --- |
-| Map Atlases | `1.20-6.0.20` |
-| Moonlight Lib | `1.20-2.16.35-forge` |
+**Verified combination:** Minecraft **1.20.1**, Forge **47.4.23**, Java **17**, Map Atlases **1.20-6.0.20**, Moonlight Lib **1.20-2.16.35-forge**.
+Other combinations are untested: they may work or fail, and compatibility is
+yours to explore and resolve. These versions are an example known to work,
+not installation limits.
 
-Use the release JAR in the instance's `mods` folder. For an upgrade, replace the previous Better Map Atlases JAR and update all clients and the server together. Back up your world before changing its mod set.
+Place the release JAR in the instance's `mods` folder. On upgrade, replace the
+old Better Map Atlases JAR and update clients and server together. Back up a
+world before changing its mod set.
 
-[Download 1.0.0](https://github.com/nivpisum/better_map_atlases/releases/tag/v1.0.0) · [中文项目页](https://mc.nivpisum.com/project/better_map_atlases/)
-
-**Better Nether Map `1.2-1.20.1` is optional:** existing fixed Nether map pages remain available with it installed. The cave survey works without it.
+[Download 1.0.1](https://github.com/nivpisum/better_map_atlases/releases/tag/v1.0.1) · [中文项目页](https://mc.nivpisum.com/project/better_map_atlases/)
 
 Two known compatibility settings:
 
@@ -53,19 +55,22 @@ These settings address known interactions; compatibility with other mod combinat
 
 Better Map Atlases 为地图册添加独立洞穴页，并改善地图颜色、大小地图显示与操作。洞穴记录来自你实际探索时看到的附近地面，不会揭示未探索地下；记录随地图页和书保存。
 
-- 客户端与服务端都需安装。目标环境为 Minecraft **1.20.1**、Forge **47.4.23**、Java **17**；依赖 Map Atlases **1.20-6.0.20** 和 Moonlight Lib **1.20-2.16.35-forge**。
+- 客户端与服务端均安装，仅强制 **Forge 和 Map Atlases 存在**，不额外限制版本或强制 Moonlight；Map Atlases 所需库按选用版本配齐。
+- **已验证组合**：Minecraft **1.20.1**、Forge **47.4.23**、Java **17**、Map Atlases **1.20-6.0.20**、Moonlight Lib **1.20-2.16.35-forge**。其他环境未经测试，可能正常或异常，请自行探索和处理。
 - 携带地图册和空白地图探索；地表与洞穴分别用图，同一区域的各个洞穴高度共用一张地图。
 - 点维度标签看地表，点深板岩“洞穴”标签看地下。**PgUp / PgDn** 每次调整一格，再点“洞穴”恢复跟随脚下高度。
 - 设置按钮位于图钉、剪刀下方；可调整大小、缩放、朝向、位置、标记、指针、文字与地图页边框。
 - 旗帜用于放置带颜色和名称的标记，剪刀用于删标记或剪页；为已有地图册补图请用制图台。
-- ImmediatelyFast 需设置 `map_atlas_generation=false`；使用 C2ME 时关闭 Map Atlases 多线程。Better Nether Map 为可选项。
+- ImmediatelyFast 需设置 `map_atlas_generation=false`；使用 C2ME 时关闭 Map Atlases 多线程。
 
 ## Source, licence, and credits
 
 Build with JDK 17 using `./gradlew build` (`gradlew.bat build` on Windows). Required mods are obtained separately and are not bundled.
 
-The source is licensed under [MPL-2.0](LICENSE). The logo is a GPL-3.0-only
-derivative of the Map Atlases icon. See [NOTICE.md](NOTICE.md) and
-[logo sources](branding/README.md) for attribution and asset terms.
+Original code and documentation use [CC0-1.0](LICENSE): you may use, modify,
+redistribute and use them commercially without attribution. This does not
+change third-party asset rights. The Map Atlases-derived logo remains
+GPL-3.0-only, and the original Minecraft gear textures retain Mojang/Microsoft
+rights. See [NOTICE.md](NOTICE.md) and [logo sources](branding/README.md).
 
 Project design and direction are by **nivpisum**. AI assistance contributed substantially to the code and documentation. Better Map Atlases is an independent add-on, not an official release of Map Atlases, Accurate Maps, or Color Accurate Maps, and is not approved by or associated with Mojang or Microsoft.

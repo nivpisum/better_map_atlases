@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: MPL-2.0 */
+/* SPDX-License-Identifier: CC0-1.0 */
 package org.nivpisum.bettermapatlases;
 
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -6,7 +6,6 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
-import org.nivpisum.bettermapatlases.compat.NetherMapCompat;
 import org.nivpisum.bettermapatlases.dynamic.SurveyNetwork;
 import org.nivpisum.bettermapatlases.dynamic.SurveyAtlas;
 import org.nivpisum.bettermapatlases.client.ClientSurvey;
@@ -47,11 +46,7 @@ public final class BetterMapAtlases {
         MapNetwork.register();
         SurveyNetwork.register();
         ModList mods = ModList.get();
-        if (mods.isLoaded("moonlight") && mods.isLoaded("map_atlases") && mods.isLoaded("betternethermap")) {
-            NetherMapCompat.register();
-            MapSampler.setHeightProvider(NetherMapCompat::sampleHeight);
-        }
-        if (mods.isLoaded("moonlight") && mods.isLoaded("map_atlases")) {
+        if (mods.isLoaded("map_atlases")) {
             SurveyAtlas.register();
             org.nivpisum.bettermapatlases.cartography.BannerPins.register();
             SurveyAtlas.configureAuto(p -> SURVEY_ENABLED.get() && SurveyNetwork.isRemotePresent(p));

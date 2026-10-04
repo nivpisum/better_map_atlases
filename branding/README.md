@@ -11,7 +11,9 @@ icon, with a more detailed surface map and a secondary cave map.
 - Logo licence: **GPL-3.0-only**; full text is in `LICENSES/GPL-3.0-only.txt`.
 
 The logo is not an official Map Atlases or Minecraft logo. The Java source
-uses MPL-2.0 separately. Original logo pixels and the surface map's water/land
+and documentation use CC0-1.0 separately, without an attribution requirement.
+The compositing script is CC0; the image assets retain the logo's GPL-3.0-only
+terms. Original logo pixels and the surface map's water/land
 layout are the reference for the derivative.
 
 `composite_logo.py` reproduces the final icon with Pillow. It paints only the

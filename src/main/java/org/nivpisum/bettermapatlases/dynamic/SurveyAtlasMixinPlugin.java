@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: MPL-2.0 */
+/* SPDX-License-Identifier: CC0-1.0 */
 package org.nivpisum.bettermapatlases.dynamic;
 
 import net.minecraftforge.fml.loading.FMLLoader;
@@ -11,17 +11,14 @@ import java.util.stream.Collectors;
 
 public final class SurveyAtlasMixinPlugin implements IMixinConfigPlugin {
     private boolean enabled;
-    private boolean bnm;
     @Override public void onLoad(String mixinPackage) {
         var loading = FMLLoader.getLoadingModList();
         if (loading == null) return;
         Set<String> ids = loading.getMods().stream().map(m -> m.getModId()).collect(Collectors.toSet());
-        enabled = ids.containsAll(Set.of("map_atlases", "moonlight"));
-        bnm = ids.contains("betternethermap");
+        enabled = ids.contains("map_atlases");
     }
     @Override public boolean shouldApplyMixin(String target, String mixin) {
-        // The existing height-aware collection hook handles both revisions with BNM.
-        return enabled && (!mixin.endsWith("AtlasDynamicCollectionMixin") || !bnm);
+        return enabled;
     }
     @Override public String getRefMapperConfig() { return null; }
     @Override public void acceptTargets(Set<String> mine, Set<String> others) {}

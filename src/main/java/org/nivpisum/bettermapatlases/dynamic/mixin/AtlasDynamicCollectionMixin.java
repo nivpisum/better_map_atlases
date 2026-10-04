@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: MPL-2.0 */
+/* SPDX-License-Identifier: CC0-1.0 */
 package org.nivpisum.bettermapatlases.dynamic.mixin;
 
 import org.nivpisum.bettermapatlases.dynamic.SurveyAtlas;
@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-/** Used without BNM; with BNM the existing combined height/kind hook owns this. */
+/** Keeps collection membership aligned with stored surface/cave page kinds. */
 @Mixin(value = MapCollection.class, remap = false)
 public abstract class AtlasDynamicCollectionMixin {
     @Shadow @Final private Map<MapKey, MapDataHolder> maps;
